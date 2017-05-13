@@ -136,7 +136,8 @@ class UpdateForm(NewsletterForm):
         return data
 
     user_activation_code = forms.CharField(
-        label=_("Activation code"), max_length=40
+        label=_("Activation code"), max_length=40,
+        widget=forms.HiddenInput
     )
 
 
