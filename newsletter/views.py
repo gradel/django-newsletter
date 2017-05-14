@@ -590,7 +590,10 @@ class SubmissionArchiveDetailView(SubmissionViewBase, DateDetailView):
             'site': Site.objects.get_current(),
             'date': self.object.publish_date,
             'STATIC_URL': settings.STATIC_URL,
-            'MEDIA_URL': settings.MEDIA_URL
+            'MEDIA_URL': settings.MEDIA_URL,
+            # my custom template extends from base template which needs request to be in the context
+            'request': self.request,  # custom
+
         })
 
         return context
@@ -599,6 +602,8 @@ class SubmissionArchiveDetailView(SubmissionViewBase, DateDetailView):
         """ Get the message template for the current newsletter. """
 
         html_template = self.object.message.html_template
+        # avoiding TypeError at /newsletter/.../archive/.../ sequence item 0: expected str instance, Template found
+        html_template = 'newsletter/message/message_web.html'  # custom
 
         # No HTML -> no party!
         if not html_template:
