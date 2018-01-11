@@ -22,12 +22,14 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render
 
 from django.utils.html import format_html
+from django.utils.text import force_text
 from django.utils.translation import ugettext as _, ungettext
 from django.utils.formats import date_format
 
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.i18n import javascript_catalog
 
+from easy_thumbnails.files import get_thumbnailer
 from sorl.thumbnail.admin import AdminImageMixin
 
 from .models import (
@@ -45,6 +47,11 @@ from .admin_utils import ExtendibleModelAdminMixin, make_subscription
 from .compat import get_context
 
 from .settings import newsletter_settings
+
+from mezzanine.core.admin import TabularDynamicInlineAdmin
+
+from utils.models import ArticleImageItem
+
 
 # Contsruct URL's for icons
 ICON_URLS = {
@@ -214,9 +221,10 @@ class ArticleInline(AdminImageMixin, StackedInline):
     model = Article
     extra = 2
     formset = ArticleFormSet
+    readonly_fields = ["get_edit_link", 'display_images']
     fieldsets = (
         (None, {
-            'fields': ('section_heading', 'title', 'text')
+            'fields': ('section_heading', 'title', 'text', 'display_images', "get_edit_link")
         }),
         (_('Optional'), {
             'fields': ('sortorder',),
@@ -228,6 +236,30 @@ class ArticleInline(AdminImageMixin, StackedInline):
         formfield_overrides = {
             models.TextField: {'widget': newsletter_settings.RICHTEXT_WIDGET},
         }
+
+    def get_edit_link(self, obj=None):
+        if obj.pk:  # if object has already been saved and has a primary key, show link to it
+            url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[force_text(obj.pk)])
+            return """<a href="{url}">{text}</a>""".format(
+                url=url,
+                text=_("Artikel einzeln editieren (um Bilder hinzuzufügen)") % obj._meta.verbose_name,
+            )
+        return _("(sichern und weiter bearbeiten um den Link zur Einzelbearbeitung zu erzeugen)")
+    get_edit_link.short_description = _("Artikel-Link")
+    get_edit_link.allow_tags = True
+
+    def display_images(self, obj=None):
+        if obj.article_images.all():
+            urls = []
+            for image in obj.article_images.all():
+                nailer = get_thumbnailer(image.image)
+                thumb = nailer.get_thumbnail({'crop': True, 'size': (50, 50)})
+                urls.append(thumb.url)
+            image_links = ['<img src="%s" />' % url for url in urls]
+            return ''.join(image_links)
+        return 'keine Bilder'
+    display_images.short_description = _("Bilder")
+    display_images.allow_tags = True
 
 
 class MessageAdmin(NewsletterAdminLinkMixin, ExtendibleModelAdminMixin,
@@ -517,6 +549,73 @@ class SubscriptionAdmin(NewsletterAdminLinkMixin, ExtendibleModelAdminMixin,
         ]
 
         return my_urls + urls
+
+
+class ArticleImageInline(TabularDynamicInlineAdmin):
+    model = ArticleImageItem
+    extra = 0
+    raw_id_fields = ('image',)
+
+
+class ExcludeMealplanListFilter(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = _('Nachricht')
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'message__id'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        return [(str(post.id), post.title + ' - ' + post.newsletter.title[0:23] + '...')
+                for post in Message.objects.exclude(newsletter__title__icontains='speiseplan')]
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        if self.value():
+            return queryset.filter(post__id=int(self.value()))
+
+
+@admin.register(Article)
+class ArticleAdmin(admin.ModelAdmin):
+    fields = ('title', 'text', 'section_heading', 'get_message_link')
+    readonly_fields = ('get_message_link',)
+    inlines = (ArticleImageInline,)
+    list_filter = (ExcludeMealplanListFilter,)
+    search_fields = ('title',)
+
+    change_list_template = 'admin/newsletter/article/change_list.html'
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.exclude(post__newsletter__title__icontains='speiseplan')
+
+    if newsletter_settings.RICHTEXT_WIDGET:
+        formfield_overrides = {
+            models.TextField: {'widget': newsletter_settings.RICHTEXT_WIDGET},
+        }
+
+    def get_message_link(self, obj=None):
+        obj = obj.post
+        if obj.pk:  # if object has already been saved and has a primary key, show link to it
+            url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[force_text(obj.pk)])
+            return """<a href="{url}">{text}</a>""".format(
+                url=url,
+                text=_("Edit %s") % obj.title,
+            )
+        return _("(save and continue editing to create a link)")
+    get_message_link.short_description = _("Nachricht")
+    get_message_link.allow_tags = True
 
 
 admin.site.register(Newsletter, NewsletterAdmin)
