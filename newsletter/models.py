@@ -18,6 +18,7 @@ from django.utils.timezone import now
 from sorl.thumbnail import ImageField
 
 from .compat import get_context
+from .mh_utils import get_reply_to
 from .utils import (
     make_activation_code, get_default_sites, ACTIONS
 )
@@ -623,6 +624,7 @@ class Submission(models.Model):
             subject, text,
             from_email=self.newsletter.get_sender(),
             to=[subscription.get_recipient()],
+            reply_to=get_reply_to(self),
             headers=self.extra_headers,
         )
 
