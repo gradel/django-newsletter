@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
 from django.utils.timezone import now
 
+from filer.fields.image import FilerImageField
 from sorl.thumbnail import ImageField
 
 from .compat import get_context
@@ -453,6 +454,10 @@ class Article(models.Model):
         'Message', verbose_name=_('message'), related_name='articles',
         on_delete=models.CASCADE
     )
+
+    teaser_image = FilerImageField(null=True, blank=True,
+        related_name='image_newsletter_articles', verbose_name=_("Teaserbild"),
+        on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ('sortorder',)

@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
 
+from mezzanine.core.admin import TabularDynamicInlineAdmin
+
+from utils.models import ArticleImageItem
+
 import logging
-logger = logging.getLogger(__name__)
 
 import six
 
@@ -17,6 +20,7 @@ from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 
+from django.forms import HiddenInput
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 
 from django.shortcuts import render
@@ -48,10 +52,9 @@ from .compat import get_context
 
 from .settings import newsletter_settings
 
-from mezzanine.core.admin import TabularDynamicInlineAdmin
+logger = logging.getLogger(__name__)
 
-from utils.models import ArticleImageItem
-
+REFUGEE_NEWSLETTER_SLUG = 'arbeit-mit-gefluchteten-und-zugewanderten-menschen'
 
 # Contsruct URL's for icons
 ICON_URLS = {
@@ -224,7 +227,7 @@ class ArticleInline(AdminImageMixin, StackedInline):
     readonly_fields = ["get_edit_link", 'display_images']
     fieldsets = (
         (None, {
-            'fields': ('section_heading', 'title', 'text', 'display_images', "get_edit_link")
+            'fields': ('section_heading', 'title', 'text', 'teaser_image', 'display_images', "get_edit_link")
         }),
         (_('Optional'), {
             'fields': ('sortorder',),
@@ -551,6 +554,25 @@ class SubscriptionAdmin(NewsletterAdminLinkMixin, ExtendibleModelAdminMixin,
         return my_urls + urls
 
 
+class MhMessageAdmin(MessageAdmin):
+
+    def get_formsets_with_inlines(self, request, obj=None):
+        for inline in self.get_inline_instances(request, obj):
+            formset = inline.get_formset(request, obj)
+            try:
+                newsletter_slug = obj.newsletter.slug  # add message
+            except AttributeError:
+                yield formset, inline
+            else:
+                if newsletter_slug == REFUGEE_NEWSLETTER_SLUG:
+                    yield formset, inline
+                elif 'teaser_image' in formset.form.base_fields:
+                    formset.form.base_fields['teaser_image'].widget = HiddenInput()
+                    yield formset, inline
+                else:
+                    yield formset, inline
+
+
 class ArticleImageInline(TabularDynamicInlineAdmin):
     model = ArticleImageItem
     extra = 0
@@ -560,7 +582,7 @@ class ArticleImageInline(TabularDynamicInlineAdmin):
 class ExcludeMealplanListFilter(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
-    title = _('Nachricht')
+    title = 'Nachricht'
 
     # Parameter for the filter that will be used in the URL query.
     parameter_name = 'message__id'
@@ -588,13 +610,18 @@ class ExcludeMealplanListFilter(admin.SimpleListFilter):
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    fields = ('title', 'text', 'section_heading', 'get_message_link')
     readonly_fields = ('get_message_link',)
     inlines = (ArticleImageInline,)
     list_filter = (ExcludeMealplanListFilter,)
     search_fields = ('title',)
 
     change_list_template = 'admin/newsletter/article/change_list.html'
+
+    def get_fields(self, request, obj=None):
+        if obj.post.newsletter.slug == REFUGEE_NEWSLETTER_SLUG:
+            return ('title', 'text', 'teaser_image', 'section_heading', 'get_message_link')
+        else:
+            return ('title', 'text', 'section_heading', 'get_message_link')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -618,7 +645,8 @@ class ArticleAdmin(admin.ModelAdmin):
     get_message_link.allow_tags = True
 
 
+admin.site.register(Message, MhMessageAdmin)
 admin.site.register(Newsletter, NewsletterAdmin)
 admin.site.register(Submission, SubmissionAdmin)
-admin.site.register(Message, MessageAdmin)
+#adrin.site.register(Message, MessageAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
