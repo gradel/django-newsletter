@@ -434,7 +434,7 @@ class Article(models.Model):
         verbose_name=_('sort order'), blank=True
     )
 
-    title = models.CharField(max_length=200, verbose_name=_('title'))
+    title = models.CharField(max_length=200, verbose_name=_('title'), blank=True)
     text = models.TextField(verbose_name=_('text'))
     section_heading = models.CharField('Sektionsüberschrift', max_length=200, blank=True)
 
