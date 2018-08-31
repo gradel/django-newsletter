@@ -458,6 +458,7 @@ class Article(models.Model):
     teaser_image = FilerImageField(null=True, blank=True,
         related_name='image_newsletter_articles', verbose_name=_("Teaserbild"),
         on_delete=models.SET_NULL)
+    teaser_copyright = models.CharField('Bild Copyright', max_length=50, blank=True)
 
     class Meta:
         ordering = ('sortorder',)

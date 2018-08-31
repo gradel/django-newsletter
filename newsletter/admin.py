@@ -227,7 +227,7 @@ class ArticleInline(AdminImageMixin, StackedInline):
     readonly_fields = ["get_edit_link", 'display_images']
     fieldsets = (
         (None, {
-            'fields': ('section_heading', 'title', 'text', 'teaser_image', 'display_images', "get_edit_link")
+            'fields': ('section_heading', 'title', 'text', 'teaser_image', 'teaser_copyright', 'display_images', "get_edit_link")
         }),
         (_('Optional'), {
             'fields': ('sortorder',),
@@ -568,6 +568,7 @@ class MhMessageAdmin(MessageAdmin):
                     yield formset, inline
                 elif 'teaser_image' in formset.form.base_fields:
                     formset.form.base_fields['teaser_image'].widget = HiddenInput()
+                    formset.form.base_fields['teaser_copyright'].widget = HiddenInput()
                     yield formset, inline
                 else:
                     yield formset, inline
