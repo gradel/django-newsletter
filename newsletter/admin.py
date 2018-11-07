@@ -55,6 +55,7 @@ from .settings import newsletter_settings
 logger = logging.getLogger(__name__)
 
 REFUGEE_NEWSLETTER_SLUG = 'arbeit-mit-gefluchteten-und-zugewanderten-menschen'
+EMPLOYEE_NEWSLETTER_SLUG = 'mitarbeiter'
 
 # Contsruct URL's for icons
 ICON_URLS = {
@@ -564,7 +565,7 @@ class MhMessageAdmin(MessageAdmin):
             except AttributeError:
                 yield formset, inline
             else:
-                if newsletter_slug == REFUGEE_NEWSLETTER_SLUG:
+                if newsletter_slug == REFUGEE_NEWSLETTER_SLUG or newsletter_slug == EMPLOYEE_NEWSLETTER_SLUG:
                     yield formset, inline
                 elif 'teaser_image' in formset.form.base_fields:
                     formset.form.base_fields['teaser_image'].widget = HiddenInput()
@@ -619,7 +620,7 @@ class ArticleAdmin(admin.ModelAdmin):
     change_list_template = 'admin/newsletter/article/change_list.html'
 
     def get_fields(self, request, obj=None):
-        if obj.post.newsletter.slug == REFUGEE_NEWSLETTER_SLUG:
+        if obj.post.newsletter.slug == REFUGEE_NEWSLETTER_SLUG or obj.post.newsletter.slug == EMPLOYEE_NEWSLETTER_SLUG:
             return ('title', 'text', 'teaser_image', 'section_heading', 'get_message_link')
         else:
             return ('title', 'text', 'section_heading', 'get_message_link')
