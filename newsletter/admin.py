@@ -54,7 +54,7 @@ from .settings import newsletter_settings
 
 logger = logging.getLogger(__name__)
 
-REFUGEE_NEWSLETTER_SLUG = 'arbeit-mit-gefluchteten-und-zugewanderten-menschen'
+REFUGEE_NEWSLETTER_SLUG = 'arbeit-mit-zugewanderten-menschen'
 EMPLOYEE_NEWSLETTER_SLUG = 'mitarbeiter'
 
 # Contsruct URL's for icons

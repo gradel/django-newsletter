@@ -6,7 +6,7 @@ test_reply_to = settings. TEST_REPLY_TO
 
 def get_reply_to(subscription):
     try:
-        welcome = True if 'gefluchteten' in subscription.newsletter.slug else False
+        welcome = True if 'zugewandert' in subscription.newsletter.slug else False
         test = True if 'test-newsletter' == subscription.newsletter.slug else False
     except:
         return []
