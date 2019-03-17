@@ -1,4 +1,4 @@
-from mezzanine.conf import settings
+from django.conf import settings
 
 welcome_reply_to = settings.WELCOME_REPLY_TO
 test_reply_to = settings. TEST_REPLY_TO

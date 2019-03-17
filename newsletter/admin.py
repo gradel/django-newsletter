@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-from mezzanine.core.admin import TabularDynamicInlineAdmin
-
 from utils.models import ArticleImageItem
 
 import logging
@@ -47,6 +45,7 @@ from .admin_forms import (
     ArticleFormSet
 )
 from .admin_utils import ExtendibleModelAdminMixin, make_subscription
+from adminsortable2.admin import SortableInlineAdminMixin
 
 from .compat import get_context
 
@@ -575,10 +574,9 @@ class MhMessageAdmin(MessageAdmin):
                     yield formset, inline
 
 
-class ArticleImageInline(TabularDynamicInlineAdmin):
+class ArticleImageInline(SortableInlineAdminMixin, admin.StackedInline):
     model = ArticleImageItem
     extra = 0
-    raw_id_fields = ('image',)
 
 
 class ExcludeMealplanListFilter(admin.SimpleListFilter):

@@ -576,6 +576,8 @@ class SubmissionArchiveIndexView(SubmissionViewBase, ArchiveIndexView):
 
 
 class SubmissionArchiveDetailView(SubmissionViewBase, DateDetailView):
+    template_name = 'newsletter/message/message_web.html'  # custom
+
     def get_context_data(self, **kwargs):
         """
         Make sure the actual message is available.
@@ -613,15 +615,3 @@ class SubmissionArchiveDetailView(SubmissionViewBase, DateDetailView):
             ))
 
         return html_template
-
-    def render_to_response(self, context, **response_kwargs):
-        """
-        Return a simplified response; the template should be rendered without
-        any context. Use a SimpleTemplateResponse as a RequestContext should
-        not be used.
-        """
-        return SimpleTemplateResponse(
-            template=self.get_template(),
-            context=context,
-            **response_kwargs
-        )
