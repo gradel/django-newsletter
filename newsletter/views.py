@@ -9,8 +9,6 @@ from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from django.template.response import SimpleTemplateResponse
-
 from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404
 
