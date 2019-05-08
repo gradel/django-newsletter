@@ -224,10 +224,12 @@ class ArticleInline(AdminImageMixin, StackedInline):
     model = Article
     extra = 2
     formset = ArticleFormSet
-    readonly_fields = ["get_edit_link", 'display_images']
+    # build images stuff requested, but never was used, so we hide it for now
+    #readonly_fields = ["get_edit_link", 'display_images']
     fieldsets = (
         (None, {
-            'fields': ('section_heading', 'title', 'text', 'teaser_image', 'display_images', "get_edit_link")
+            #'fields': ('section_heading', 'title', 'text', 'teaser_image', 'display_images', "get_edit_link")
+            'fields': ('section_heading', 'title', 'text', 'teaser_image')
         }),
         (_('Optional'), {
             'fields': ('sortorder',),
