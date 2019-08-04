@@ -50,7 +50,7 @@ from adminsortable2.admin import SortableInlineAdminMixin
 from .compat import get_context
 
 from .settings import newsletter_settings
-
+from djangocms_text_ckeditor.widgets import TextEditorWidget
 logger = logging.getLogger(__name__)
 
 REFUGEE_NEWSLETTER_SLUG = 'arbeit-mit-zugewanderten-menschen'
@@ -222,7 +222,7 @@ if (
 
 class ArticleInline(AdminImageMixin, StackedInline):
     model = Article
-    extra = 2
+    extra = 0
     formset = ArticleFormSet
     # build images stuff requested, but never was used, so we hide it for now
     #readonly_fields = ["get_edit_link", 'display_images']
@@ -239,7 +239,8 @@ class ArticleInline(AdminImageMixin, StackedInline):
 
     if newsletter_settings.RICHTEXT_WIDGET:
         formfield_overrides = {
-            models.TextField: {'widget': newsletter_settings.RICHTEXT_WIDGET},
+            models.TextField: {'widget': TextEditorWidget(
+                configuration='CKEDITOR_SETTINGS_BASE')},
         }
 
     def get_edit_link(self, obj=None):
@@ -375,7 +376,6 @@ class MessageAdmin(NewsletterAdminLinkMixin, ExtendibleModelAdminMixin,
         ]
 
         return my_urls + urls
-
 
 class SubscriptionAdmin(NewsletterAdminLinkMixin, ExtendibleModelAdminMixin,
                         admin.ModelAdmin):
@@ -557,7 +557,6 @@ class SubscriptionAdmin(NewsletterAdminLinkMixin, ExtendibleModelAdminMixin,
 
 
 class MhMessageAdmin(MessageAdmin):
-
     def get_formsets_with_inlines(self, request, obj=None):
         for inline in self.get_inline_instances(request, obj):
             formset = inline.get_formset(request, obj)

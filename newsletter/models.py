@@ -23,6 +23,7 @@ from .mh_utils import get_reply_to
 from .utils import (
     make_activation_code, get_default_sites, ACTIONS
 )
+from utils.filter import bleach_clean as clean
 
 logger = logging.getLogger(__name__)
 
@@ -470,6 +471,7 @@ class Article(models.Model):
         return self.title
 
     def save(self):
+        self.text = clean(self.text)
         if self.sortorder is None:
             # If saving a new object get the next available Article ordering
             # as to assure uniqueness.
