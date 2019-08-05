@@ -470,14 +470,16 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
-    def save(self):
-        self.text = clean(self.text)
+    def save(self, *args, **kwargs):
+        to_clean = kwargs.pop('to_clean', True)
+        if to_clean and not self.post.newsletter.id == 1:
+            self.text = clean(self.text)
         if self.sortorder is None:
             # If saving a new object get the next available Article ordering
             # as to assure uniqueness.
             self.sortorder = self.post.get_next_article_sortorder()
 
-        super(Article, self).save()
+        super(Article, self).save(*args, **kwargs)
 
 
 @python_2_unicode_compatible
