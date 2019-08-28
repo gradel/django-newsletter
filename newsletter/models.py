@@ -456,10 +456,12 @@ class Article(models.Model):
         on_delete=models.CASCADE
     )
 
-    teaser_image = FilerImageField(null=True, blank=True,
+    teaser_image = FilerImageField(
+        null=True, blank=True,
         related_name='image_newsletter_articles', verbose_name=_("Teaserbild"),
         on_delete=models.SET_NULL)
-    teaser_copyright = models.CharField('Bildunterschrift', max_length=50, blank=True)
+    teaser_copyright = models.CharField(
+        'Bildunterschrift', max_length=50, blank=True)
 
     class Meta:
         ordering = ('sortorder',)
@@ -472,7 +474,7 @@ class Article(models.Model):
 
     def save(self, *args, **kwargs):
         to_clean = kwargs.pop('to_clean', True)
-        if to_clean and not self.post.newsletter.id == 1:
+        if to_clean and self.post.newsletter.id not in [1, 5]:
             self.text = clean(self.text)
         if self.sortorder is None:
             # If saving a new object get the next available Article ordering
