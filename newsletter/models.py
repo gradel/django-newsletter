@@ -444,14 +444,16 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
-    def save(self, **kwargs):
-        self.text = clean(self.text)
+    def save(self, *args, **kwargs):
+        to_clean = kwargs.pop('to_clean', True)
+        if to_clean and self.post.newsletter.id not in [1, 5]:
+            self.text = clean(self.text)
         if self.sortorder is None:
             # If saving a new object get the next available Article ordering
             # as to assure uniqueness.
             self.sortorder = self.post.get_next_article_sortorder()
 
-        super(Article, self).save()
+        super(Article, self).save(*args, **kwargs)
 
 
 def get_default_newsletter():
