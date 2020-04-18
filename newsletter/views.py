@@ -8,8 +8,6 @@ from smtplib import SMTPException
 from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.conf import settings
 
-from django.template.response import SimpleTemplateResponse
-
 from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404
 
@@ -581,6 +579,8 @@ class SubmissionArchiveIndexView(SubmissionViewBase, ArchiveIndexView):
 
 
 class SubmissionArchiveDetailView(SubmissionViewBase, DateDetailView):
+    template_name = 'newsletter/message/message_web.html'  # custom
+
     def get_context_data(self, **kwargs):
         """
         Make sure the actual message is available.
@@ -595,7 +595,10 @@ class SubmissionArchiveDetailView(SubmissionViewBase, DateDetailView):
             'site': Site.objects.get_current(),
             'date': self.object.publish_date,
             'STATIC_URL': settings.STATIC_URL,
-            'MEDIA_URL': settings.MEDIA_URL
+            'MEDIA_URL': settings.MEDIA_URL,
+            # custom template extends from base template which needs request
+            # to be in the context
+            'request': self.request,  # custom
         })
 
         return context
@@ -604,6 +607,9 @@ class SubmissionArchiveDetailView(SubmissionViewBase, DateDetailView):
         """ Get the message template for the current newsletter. """
 
         html_template = self.object.message.html_template
+        # avoiding TypeError at /newsletter/.../archive/.../
+        # sequence item 0: expected str instance, Template found
+        html_template = 'newsletter/message/message_web.html'  # custom
 
         # No HTML -> no party!
         if not html_template:
@@ -613,15 +619,3 @@ class SubmissionArchiveDetailView(SubmissionViewBase, DateDetailView):
             ))
 
         return html_template
-
-    def render_to_response(self, context, **response_kwargs):
-        """
-        Return a simplified response; the template should be rendered without
-        any context. Use a SimpleTemplateResponse as a RequestContext should
-        not be used.
-        """
-        return SimpleTemplateResponse(
-            template=self.get_template(),
-            context=context,
-            **response_kwargs
-        )
