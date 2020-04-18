@@ -488,6 +488,11 @@ class Message(models.Model):
             logger.warning('No newsletter has been set for this message yet.')
             return self.title
 
+    def save(self, **kwargs):
+        if self.pk is None:
+            self.newsletter = Newsletter.get_default()
+        super(Message, self).save(**kwargs)
+
     def get_next_article_sortorder(self):
         """ Get next available sortorder for Article. """
 
