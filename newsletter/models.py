@@ -460,7 +460,10 @@ class Message(models.Model):
     """ Message as sent through a Submission. """
 
     title = models.CharField(max_length=200, verbose_name=_('title'))
-    slug = models.SlugField(verbose_name=_('slug'))
+    slug = models.SlugField(
+        verbose_name=_('slug'),
+        help_text='Leer lassen um den Slug automatisch zu erzeugen'
+    )
 
     newsletter = models.ForeignKey(
         Newsletter, verbose_name=_('newsletter'), on_delete=models.CASCADE, default=get_default_newsletter
