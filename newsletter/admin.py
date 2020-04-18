@@ -220,7 +220,7 @@ class ArticleInline(AdminImageMixin, StackedInline):
     formset = ArticleFormSet
     fieldsets = (
         (None, {
-            'fields': ('title', 'text')
+            'fields': ('section_heading', 'title', 'text')
         }),
         (_('Optional'), {
             'fields': ('sortorder',),
