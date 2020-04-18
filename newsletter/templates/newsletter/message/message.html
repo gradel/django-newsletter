@@ -11,10 +11,6 @@
     {% for article in message.articles.all %}
         <h3>{{ article.title }}</h3>
         
-        {% thumbnail article.image "200x200" as image %}
-            <img src="http://{{ site.domain }}{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}">
-        {% endthumbnail %}
-
         <div>{{ article.text|safe }}</div>
         
         {% if article.url %}
