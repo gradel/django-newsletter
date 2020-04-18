@@ -23,6 +23,8 @@ from .utils import (
     make_activation_code, get_default_sites, ACTIONS
 )
 
+from .mh_utils import get_reply_to  # custom
+
 logger = logging.getLogger(__name__)
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
@@ -595,6 +597,7 @@ class Submission(models.Model):
             subject, text,
             from_email=self.newsletter.get_sender(),
             to=[subscription.get_recipient()],
+            reply_to=get_reply_to(self),
             headers=self.extra_headers,
         )
 
