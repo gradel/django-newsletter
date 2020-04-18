@@ -24,7 +24,8 @@ from .utils import (
 )
 
 from .mh_utils import get_reply_to  # custom
-from filer.fields.image import FilerImageField
+from filer.fields.image import FilerImageField  # custom
+from utils.filter import bleach_clean as clean  # custom
 
 logger = logging.getLogger(__name__)
 
@@ -444,6 +445,7 @@ class Article(models.Model):
         return self.title
 
     def save(self, **kwargs):
+        self.text = clean(self.text)
         if self.sortorder is None:
             # If saving a new object get the next available Article ordering
             # as to assure uniqueness.

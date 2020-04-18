@@ -51,6 +51,7 @@ from .compat import get_context, reverse
 from .settings import newsletter_settings
 
 from django.forms import HiddenInput  # custom
+from djangocms_text_ckeditor.widgets import TextEditorWidget  # custom
 
 # Contsruct URL's for icons
 ICON_URLS = {
@@ -220,7 +221,7 @@ if (
 
 class ArticleInline(AdminImageMixin, StackedInline):
     model = Article
-    extra = 2
+    extra = 0
     formset = ArticleFormSet
     fieldsets = (
         (None, {
@@ -234,7 +235,8 @@ class ArticleInline(AdminImageMixin, StackedInline):
 
     if newsletter_settings.RICHTEXT_WIDGET:
         formfield_overrides = {
-            models.TextField: {'widget': newsletter_settings.RICHTEXT_WIDGET},
+            models.TextField: {'widget': TextEditorWidget(
+                configuration='CKEDITOR_SETTINGS_BASE')},
         }
 
 
