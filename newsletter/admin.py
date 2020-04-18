@@ -50,6 +50,8 @@ from .compat import get_context, reverse
 
 from .settings import newsletter_settings
 
+from django.forms import HiddenInput  # custom
+
 # Contsruct URL's for icons
 ICON_URLS = {
     'yes': '%snewsletter/admin/img/icon-yes.gif' % settings.STATIC_URL,
@@ -58,6 +60,8 @@ ICON_URLS = {
     'no': '%snewsletter/admin/img/icon-no.gif' % settings.STATIC_URL
 }
 
+REFUGEE_NEWSLETTER_SLUG = 'arbeit-mit-zugewanderten-menschen'
+EMPLOYEE_NEWSLETTER_SLUG = 'mitarbeiter'
 
 class NewsletterAdmin(admin.ModelAdmin):
     list_display = (
@@ -220,7 +224,7 @@ class ArticleInline(AdminImageMixin, StackedInline):
     formset = ArticleFormSet
     fieldsets = (
         (None, {
-            'fields': ('section_heading', 'title', 'text')
+            'fields': ('section_heading', 'title', 'text', 'teaser_image')
         }),
         (_('Optional'), {
             'fields': ('sortorder',),
@@ -527,7 +531,27 @@ class SubscriptionAdmin(NewsletterAdminLinkMixin, ExtendibleModelAdminMixin,
         return my_urls + urls
 
 
+class MhMessageAdmin(MessageAdmin):
+    def get_formsets_with_inlines(self, request, obj=None):
+        for inline in self.get_inline_instances(request, obj):
+            formset = inline.get_formset(request, obj)
+            try:
+                newsletter_slug = obj.newsletter.slug  # add message
+            except AttributeError:
+                yield formset, inline
+            else:
+                if newsletter_slug == REFUGEE_NEWSLETTER_SLUG or newsletter_slug == EMPLOYEE_NEWSLETTER_SLUG:
+                    yield formset, inline
+                elif 'teaser_image' in formset.form.base_fields:
+                    formset.form.base_fields['teaser_image'].widget = HiddenInput()
+                    # formset.form.base_fields['teaser_copyright'].widget = HiddenInput()
+                    yield formset, inline
+                else:
+                    yield formset, inline
+
+
 admin.site.register(Newsletter, NewsletterAdmin)
 admin.site.register(Submission, SubmissionAdmin)
-admin.site.register(Message, MessageAdmin)
+# admin.site.register(Message, MessageAdmin)
+admin.site.register(Message, MhMessageAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)

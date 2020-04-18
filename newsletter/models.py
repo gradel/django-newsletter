@@ -24,6 +24,7 @@ from .utils import (
 )
 
 from .mh_utils import get_reply_to  # custom
+from filer.fields.image import FilerImageField
 
 logger = logging.getLogger(__name__)
 
@@ -411,6 +412,10 @@ class Article(models.Model):
     title = models.CharField(max_length=200, verbose_name=_('title'))
     text = models.TextField(verbose_name=_('text'))
     section_heading = models.CharField('Sektionsüberschrift', max_length=200, blank=True)
+    teaser_image = FilerImageField(
+        null=True, blank=True,
+        related_name='image_newsletter_articles', verbose_name=_("Teaserbild"),
+        on_delete=models.SET_NULL)
 
     url = models.URLField(
         verbose_name=_('link'), blank=True, null=True
