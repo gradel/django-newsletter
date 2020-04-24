@@ -23,7 +23,6 @@ from .utils import (
     make_activation_code, get_default_sites, ACTIONS
 )
 
-from .mh_utils import get_reply_to  # custom
 from filer.fields.image import FilerImageField  # custom
 from utils.filter import bleach_clean as clean  # custom
 
@@ -609,7 +608,6 @@ class Submission(models.Model):
             subject, text,
             from_email=self.newsletter.get_sender(),
             to=[subscription.get_recipient()],
-            reply_to=get_reply_to(self),
             headers=self.extra_headers,
         )
 
