@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.FILER_IMAGE_MODEL),
-        ('newsletter', '0006_article_section_heading'),
+        ('newsletter', '0005_custom_a'),
     ]
 
     operations = [
