@@ -1,4 +1,4 @@
-Django>=2.2.16
+Django>=2.2.15
 python-card-me<1.0
 ldif3<3.2
 chardet
