@@ -3,11 +3,11 @@ from functools import update_wrapper
 from django.contrib.admin.utils import unquote
 from django.http import Http404
 from django.utils.encoding import force_text
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from .models import Subscription
 
 
-class ExtendibleModelAdminMixin(object):
+class ExtendibleModelAdminMixin:
     def _getobj(self, request, object_id):
             opts = self.model._meta
 
