@@ -57,7 +57,7 @@ from .fields import DynamicImageField
 from .settings import newsletter_settings
 
 from django.forms import HiddenInput  # custom
-from djangocms_text_ckeditor.widgets import TextEditorWidget  # custom
+from ckeditor.widgets import CKEditorWidget  # custom
 
 # Construct URL's for icons
 ICON_URLS = {
@@ -262,8 +262,7 @@ class ArticleInline(BaseArticleInline):
 
     if newsletter_settings.RICHTEXT_WIDGET:
         formfield_overrides = {
-            models.TextField: {'widget': TextEditorWidget(
-                configuration='CKEDITOR_SETTINGS_BASE')},
+            models.TextField: {'widget': CKEditorWidget()}
         }
 
     # https://easy-thumbnails.readthedocs.io/en/latest/usage/#forms
