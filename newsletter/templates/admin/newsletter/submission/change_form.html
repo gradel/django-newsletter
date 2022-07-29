@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block after_related_objects %}{{ block.super }}<script type="text/javascript">
-django.jQuery(window).load(function() {
+django.jQuery(window).on('load', function() {
     JsonSubscribers.init('id_message'{% if add %}, add=true{% endif %});
     SubmitInterface.init('#submitlink');
 });
