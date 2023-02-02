@@ -577,7 +577,7 @@ class MhMessageAdmin(MessageAdmin):
             except AttributeError:
                 yield formset, inline
             else:
-                if newsletter_slug == REFUGEE_NEWSLETTER_SLUG or newsletter_slug == EMPLOYEE_NEWSLETTER_SLUG:
+                if newsletter_slug.startswith('arbeit-mit') or newsletter_slug == EMPLOYEE_NEWSLETTER_SLUG:
                     yield formset, inline
                 elif 'teaser_image' in formset.form.base_fields:
                     formset.form.base_fields['teaser_image'].widget = HiddenInput()
